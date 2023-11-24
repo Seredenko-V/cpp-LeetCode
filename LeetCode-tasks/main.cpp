@@ -5,18 +5,6 @@
 
 using namespace std;
 
-//https://leetcode.com/explore/interview/card/top-interview-questions-easy/92/array/578/
-// с использованием std::sort
-bool containsDuplicate(vector<int>& nums) {
-    sort(nums.begin(), nums.end());
-    for (size_t i = 0; i < nums.size() - 1; ++i) {
-        if (nums[i] == nums[i + 1]) {
-            return true;
-        }
-    }
-    return false;
-}
-
 ostream& operator<<(ostream& out, const vector<int>& vec) {
     for (int value : vec) {
         out << value << ' ';
@@ -24,22 +12,37 @@ ostream& operator<<(ostream& out, const vector<int>& vec) {
     return out;
 }
 
+// Given a non-empty array of integers nums, every element appears twice except for one. Find that single one.
+// You must implement a solution with a linear runtime complexity and use only constant extra space.
+// https://leetcode.com/explore/interview/card/top-interview-questions-easy/92/array/549/
+
+// решение с помощью std::sort
+int singleNumber(vector<int>& nums) {
+    if (nums.size() == 1) {
+        return nums.front();
+    }
+    sort(nums.begin(), nums.end());
+    for (size_t i = 0; i < nums.size(); i += 2) {
+        if (nums[i] != nums[i + 1]) {
+            return nums[i];
+        }
+    }
+    return -1;
+}
+
 void Test() {
     {
-        vector<int> nums{1,2,3,4,5,6,7};
-        assert(!containsDuplicate(nums));
+        vector<int> nums{2,2,1};
+        assert(singleNumber(nums) == 1);
     }{
-        vector<int> nums{-1,-100,3,99};
-        assert(!containsDuplicate(nums));
+        vector<int> nums{4,1,2,1,2};
+        assert(singleNumber(nums) == 4);
     }{
-        vector<int> nums{25,15,8,23,0,8};
-        assert(containsDuplicate(nums));
+        vector<int> nums{1};
+        assert(singleNumber(nums) == 1);
     }{
-        vector<int> nums{-1};
-        assert(!containsDuplicate(nums));
-    }{
-        vector<int> nums{1,1,1,1,1,1};
-        assert(containsDuplicate(nums));
+        vector<int> nums{2,6,7,3,2,4,7,6,4};
+        assert(singleNumber(nums) == 3);
     }
 }
 
