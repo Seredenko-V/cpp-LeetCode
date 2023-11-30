@@ -21,6 +21,7 @@ ostream& operator<<(ostream& out, const vector<int>& vec) {
 * Thus, the result should be [1,2,4].
 *******************************************************/
 
+// runtime beats 100.00 % of cpp submissions
 // memory usage beats 96.34 % of cpp submissions
 vector<int> plusOne(vector<int>& digits) {
     if (digits.empty()) {
@@ -34,15 +35,11 @@ vector<int> plusOne(vector<int>& digits) {
             break;
         }
     }
-    if (!is_overflow) {
-        return digits;
-    } else {
-        vector<int> result_digits(digits.size() + 1, 1);
-        for (size_t i = 1; i < result_digits.size(); ++i) {
-            result_digits[i] = digits[i - 1];
-        }
-        return result_digits;
+    if (is_overflow) {
+        digits[0] = 1;
+        digits.push_back(0);
     }
+    return digits;
 }
 
 void Tests() {
