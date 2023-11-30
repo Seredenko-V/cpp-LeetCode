@@ -1,7 +1,6 @@
 #include <vector>
 #include <cassert>
 #include <iostream>
-#include <algorithm>
 
 using namespace std;
 
@@ -12,41 +11,69 @@ ostream& operator<<(ostream& out, const vector<int>& vec) {
     return out;
 }
 
-// Given a non-empty array of integers nums, every element appears twice except for one. Find that single one.
-// You must implement a solution with a linear runtime complexity and use only constant extra space.
-// https://leetcode.com/explore/interview/card/top-interview-questions-easy/92/array/549/
+// Plus One
+// https://leetcode.com/explore/interview/card/top-interview-questions-easy/92/array/559/
+/******************************************************
+* Input: digits = [1,2,3]
+* Output: [1,2,4]
+* Explanation: The array represents the integer 123.
+* Incrementing by one gives 123 + 1 = 124.
+* Thus, the result should be [1,2,4].
+*******************************************************/
 
-// решение с помощью std::sort
-int singleNumber(vector<int>& nums) {
-    if (nums.size() == 1) {
-        return nums.front();
+// memory usage beats 96.34 % of cpp submissions
+vector<int> plusOne(vector<int>& digits) {
+    if (digits.empty()) {
+        return {};
     }
-    sort(nums.begin(), nums.end());
-    for (size_t i = 0; i < nums.size(); i += 2) {
-        if (nums[i] != nums[i + 1]) {
-            return nums[i];
+    bool is_overflow = true;
+    for (int i = static_cast<int>(digits.size()) - 1; i >= 0; --i) {
+        digits[i] = ++digits[i] % 10;
+        if (digits[i] != 0) {
+            is_overflow = false;
+            break;
         }
     }
-    return -1;
+    if (!is_overflow) {
+        return digits;
+    } else {
+        vector<int> result_digits(digits.size() + 1, 1);
+        for (size_t i = 1; i < result_digits.size(); ++i) {
+            result_digits[i] = digits[i - 1];
+        }
+        return result_digits;
+    }
 }
 
-void Test() {
+void Tests() {
     {
-        vector<int> nums{2,2,1};
-        assert(singleNumber(nums) == 1);
+        vector<int> digits{1,2,3};
+        vector<int> expected_digits{1,2,4};
+        assert(expected_digits == plusOne(digits));
     }{
-        vector<int> nums{4,1,2,1,2};
-        assert(singleNumber(nums) == 4);
+        vector<int> digits{4,3,2,1};
+        vector<int> expected_digits{4,3,2,2};
+        assert(expected_digits == plusOne(digits));
     }{
-        vector<int> nums{1};
-        assert(singleNumber(nums) == 1);
+        vector<int> digits{9};
+        vector<int> expected_digits{1,0};
+        assert(expected_digits == plusOne(digits));
     }{
-        vector<int> nums{2,6,7,3,2,4,7,6,4};
-        assert(singleNumber(nums) == 3);
+        vector<int> digits{9,9,9};
+        vector<int> expected_digits{1,0,0,0};
+        assert(expected_digits == plusOne(digits));
+    }{
+        vector<int> digits{1};
+        vector<int> expected_digits{2};
+        assert(expected_digits == plusOne(digits));
+    }{
+        vector<int> digits;
+        assert(plusOne(digits).empty());
     }
+    cerr << "Tests has passed\n"s;
 }
 
 int main() {
-    Test();
+    Tests();
     return 0;
 }
