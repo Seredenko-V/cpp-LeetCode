@@ -11,61 +11,54 @@ ostream& operator<<(ostream& out, const vector<int>& vec) {
     return out;
 }
 
-// Plus One
-// https://leetcode.com/explore/interview/card/top-interview-questions-easy/92/array/559/
+// Move Zeroes
+// https://leetcode.com/explore/interview/card/top-interview-questions-easy/92/array/567/
 /******************************************************
-* Input: digits = [1,2,3]
-* Output: [1,2,4]
-* Explanation: The array represents the integer 123.
-* Incrementing by one gives 123 + 1 = 124.
-* Thus, the result should be [1,2,4].
+* Given an integer array nums, move all 0's to the end of it while maintaining the relative
+* order of the non-zero elements.
+* Note that you must do this in-place without making a copy of the array.
 *******************************************************/
 
-// runtime beats 100.00 % of cpp submissions
-// memory usage beats 96.34 % of cpp submissions
-vector<int> plusOne(vector<int>& digits) {
-    if (digits.empty()) {
-        return {};
+// Runtime: 1698 ms - very bad
+// Memory Usage: 19.7 MB - memory usage beats 36.65 % of cpp submissions.
+void moveZeroes(vector<int>& nums) {
+    if (nums.empty()) {
+        return;
     }
-    bool is_overflow = true;
-    for (int i = static_cast<int>(digits.size()) - 1; i >= 0; --i) {
-        digits[i] = ++digits[i] % 10;
-        if (digits[i] != 0) {
-            is_overflow = false;
-            break;
+    for (size_t i = 0; i < nums.size() - 1; ++i) {
+        for (size_t j = 0; j < nums.size() - i - 1; ++j) {
+            if (nums[j] == 0 && nums[j] != nums[j + 1]) {
+                swap(nums[j], nums[j + 1]);
+            }
         }
     }
-    if (is_overflow) {
-        digits[0] = 1;
-        digits.push_back(0);
-    }
-    return digits;
 }
 
 void Tests() {
     {
-        vector<int> digits{1,2,3};
-        vector<int> expected_digits{1,2,4};
-        assert(expected_digits == plusOne(digits));
+        vector<int> nums{0,1,0,3,12};
+        vector<int> expected_nums{1,3,12,0,0};
+        moveZeroes(nums);
+        assert(expected_nums == nums);
     }{
-        vector<int> digits{4,3,2,1};
-        vector<int> expected_digits{4,3,2,2};
-        assert(expected_digits == plusOne(digits));
+        vector<int> nums{0,0,0,1,0};
+        vector<int> expected_nums{1,0,0,0,0};
+        moveZeroes(nums);
+        assert(expected_nums == nums);
     }{
-        vector<int> digits{9};
-        vector<int> expected_digits{1,0};
-        assert(expected_digits == plusOne(digits));
+        vector<int> nums{0};
+        vector<int> expected_nums{0};
+        moveZeroes(nums);
+        assert(expected_nums == nums);
     }{
-        vector<int> digits{9,9,9};
-        vector<int> expected_digits{1,0,0,0};
-        assert(expected_digits == plusOne(digits));
+        vector<int> nums;
+        moveZeroes(nums);
+        assert(nums.empty());
     }{
-        vector<int> digits{1};
-        vector<int> expected_digits{2};
-        assert(expected_digits == plusOne(digits));
-    }{
-        vector<int> digits;
-        assert(plusOne(digits).empty());
+        vector<int> nums{7,1,8,3,12};
+        vector<int> expected_nums = nums;
+        moveZeroes(nums);
+        assert(expected_nums == nums);
     }
     cerr << "Tests has passed\n"s;
 }
