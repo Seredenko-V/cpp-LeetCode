@@ -12,59 +12,70 @@ ostream& operator<<(ostream& out, const vector<int>& vec) {
     return out;
 }
 
-// Move Zeroes
-// https://leetcode.com/explore/interview/card/top-interview-questions-easy/92/array/567/
+// Two Sum
+// https://leetcode.com/explore/interview/card/top-interview-questions-easy/92/array/546/
 /******************************************************
-* Given an integer array nums, move all 0's to the end of it while maintaining the relative
-* order of the non-zero elements.
-* Note that you must do this in-place without making a copy of the array.
+* Given an array of integers nums and an integer target, return
+* indices of the two numbers such that they add up to target.
+*
+* You may assume that each input would have exactly one solution,
+* and you may not use the same element twice.
+*
+* You can return the answer in any order.
 *******************************************************/
 
-// Runtime: 20 ms - runtime beats 43.88 % of cpp submissions
-// Memory Usage: 19.5 MB - memory usage beats 65.31 % of cpp submissions.
-void moveZeroes(vector<int>& nums) {
-    uint16_t id_no_zero = 0u; // т.к. 1 <= nums.length <= 10'000
-    // перестановка ненулевых значений в начало массива
-    for (uint16_t i = 0; i < static_cast<uint16_t>(nums.size()); ++i) {
-        if (nums[i] != 0) {
-            nums[id_no_zero++] = nums[i];
+// Сложность: O(N^2)
+// Runtime: 276 ms - runtime beats 33.98 % of cpp submissions.
+// Memory Usage: 10.4 MB - memory usage beats 95.56 % of cpp submissions.
+vector<int> twoSum(vector<int>& nums, int target) {
+    if (nums.size() < 2) {
+        return {};
+    }
+    for (size_t i = 0; i < nums.size() - 1; ++i) {
+        for (size_t j = i + 1; j < nums.size(); ++j) {
+            if (nums[i] + nums[j] == target) {
+                return {static_cast<int>(i), static_cast<int>(j)};
+            }
         }
     }
-    // дописывание нулей справа
-    fill(nums.begin() + id_no_zero, nums.end(), 0);
+    return {};
 }
 
 void Tests() {
     {
-        vector<int> nums{0,1,0,3,12};
-        vector<int> expected_nums{1,3,12,0,0};
-        moveZeroes(nums);
-        assert(expected_nums == nums);
+        vector<int> nums{2,7,11,15};
+        constexpr int kTarger = 9;
+        vector<int> expected_nums{0,1};
+        assert(expected_nums == twoSum(nums, kTarger));
     }{
-        vector<int> nums{0,0,0,1,0};
-        vector<int> expected_nums{1,0,0,0,0};
-        moveZeroes(nums);
-        assert(expected_nums == nums);
+        vector<int> nums{3,2,4};
+        constexpr int kTarger = 6;
+        vector<int> expected_nums{1,2};
+        assert(expected_nums == twoSum(nums, kTarger));
     }{
-        vector<int> nums{2,0,0,0,0};
-        vector<int> expected_nums = nums;;
-        moveZeroes(nums);
-        assert(expected_nums == nums);
+        vector<int> nums{3,3};
+        constexpr int kTarger = 6;
+        vector<int> expected_nums{0,1};
+        assert(expected_nums == twoSum(nums, kTarger));
     }{
-        vector<int> nums{0};
-        vector<int> expected_nums{0};
-        moveZeroes(nums);
-        assert(expected_nums == nums);
+        vector<int> nums{5};
+        constexpr int kTarger = 6;
+        assert(twoSum(nums, kTarger).empty());
     }{
-        vector<int> nums{0,0,0,0,0,0,0,0,0};
-        vector<int> expected_nums = nums;
-        moveZeroes(nums);
-        assert(expected_nums == nums);
+        vector<int> nums{3,2,4,-5};
+        constexpr int kTarger = -3;
+        vector<int> expected_nums{1,3};
+        assert(expected_nums == twoSum(nums, kTarger));
     }{
-        vector<int> nums{7,1,8,3,12};
-        vector<int> expected_nums = nums;
-        moveZeroes(nums);
-        assert(expected_nums == nums);
+        vector<int> nums{-23,-4,-9,-7,0};
+        constexpr int kTarger = -30;
+        vector<int> expected_nums{0,3};
+        assert(expected_nums == twoSum(nums, kTarger));
+    }{
+        vector<int> nums{-23,-4,-9,-7,0};
+        constexpr int kTarger = -4;
+        vector<int> expected_nums{1,4};
+        assert(expected_nums == twoSum(nums, kTarger));
     }
     cerr << "Tests has passed\n"s;
 }
