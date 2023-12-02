@@ -1,6 +1,7 @@
 #include <vector>
 #include <cassert>
 #include <iostream>
+#include <algorithm>
 
 using namespace std;
 
@@ -22,9 +23,6 @@ ostream& operator<<(ostream& out, const vector<int>& vec) {
 // Runtime: 20 ms - runtime beats 43.88 % of cpp submissions
 // Memory Usage: 19.5 MB - memory usage beats 65.31 % of cpp submissions.
 void moveZeroes(vector<int>& nums) {
-    if (nums.empty()) {
-        return;
-    }
     uint16_t id_no_zero = 0u; // т.к. 1 <= nums.length <= 10'000
     // перестановка ненулевых значений в начало массива
     for (uint16_t i = 0; i < static_cast<uint16_t>(nums.size()); ++i) {
@@ -33,9 +31,7 @@ void moveZeroes(vector<int>& nums) {
         }
     }
     // дописывание нулей справа
-    for (uint16_t i = id_no_zero; i < static_cast<uint16_t>(nums.size()); ++i) {
-        nums[i] = 0;
-    }
+    fill(nums.begin() + id_no_zero, nums.end(), 0);
 }
 
 void Tests() {
@@ -64,10 +60,6 @@ void Tests() {
         vector<int> expected_nums = nums;
         moveZeroes(nums);
         assert(expected_nums == nums);
-    }{
-        vector<int> nums;
-        moveZeroes(nums);
-        assert(nums.empty());
     }{
         vector<int> nums{7,1,8,3,12};
         vector<int> expected_nums = nums;
