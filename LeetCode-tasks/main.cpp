@@ -25,9 +25,9 @@ ostream& operator<<(ostream& out, const vector<int>& vec) {
 * You can return the answer in any order.
 *******************************************************/
 
-// Сложность: O(2*N)
-// Runtime: 9 ms - runtime beats 71.92 % of cpp submissions.
-// Memory Usage: 12.2  MB - memory usage beats 11.13 % of cpp submissions.
+// Сложность: O(N)
+// Runtime: 3 ms - runtime beats 99.25 % of cpp submissions.
+// Memory Usage: 12.2  MB - memory usage beats 25.82 % of cpp submissions.
 vector<int> twoSum(vector<int>& nums, int target) {
     if (nums.size() < 2) {
         return {};
@@ -35,13 +35,11 @@ vector<int> twoSum(vector<int>& nums, int target) {
     unordered_map<int, int> hash_table(nums.size());
     // int т.к. 2 <= nums.length <= 10'000
     for (int i = 0; i < static_cast<int>(nums.size()); ++i) {
-        hash_table[nums[i]] = i;
-    }
-    for (int i = 0; i < static_cast<int>(nums.size()); ++i) {
         unordered_map<int, int>::const_iterator it_need_num = hash_table.find(target - nums[i]);
-        if (it_need_num != hash_table.cend() && it_need_num->second != i) {
-            return {i, it_need_num->second};
+        if (it_need_num != hash_table.cend()) {
+            return {it_need_num->second, i};
         }
+        hash_table[nums[i]] = i;
     }
     return {};
 }
