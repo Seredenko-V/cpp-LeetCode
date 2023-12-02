@@ -19,18 +19,22 @@ ostream& operator<<(ostream& out, const vector<int>& vec) {
 * Note that you must do this in-place without making a copy of the array.
 *******************************************************/
 
-// Runtime: 1698 ms - very bad
-// Memory Usage: 19.7 MB - memory usage beats 36.65 % of cpp submissions.
+// Runtime: 20 ms - runtime beats 43.88 % of cpp submissions
+// Memory Usage: 19.5 MB - memory usage beats 65.31 % of cpp submissions.
 void moveZeroes(vector<int>& nums) {
     if (nums.empty()) {
         return;
     }
-    for (size_t i = 0; i < nums.size() - 1; ++i) {
-        for (size_t j = 0; j < nums.size() - i - 1; ++j) {
-            if (nums[j] == 0 && nums[j] != nums[j + 1]) {
-                swap(nums[j], nums[j + 1]);
-            }
+    uint16_t id_no_zero = 0u; // т.к. 1 <= nums.length <= 10'000
+    // перестановка ненулевых значений в начало массива
+    for (uint16_t i = 0; i < static_cast<uint16_t>(nums.size()); ++i) {
+        if (nums[i] != 0) {
+            nums[id_no_zero++] = nums[i];
         }
+    }
+    // дописывание нулей справа
+    for (uint16_t i = id_no_zero; i < static_cast<uint16_t>(nums.size()); ++i) {
+        nums[i] = 0;
     }
 }
 
@@ -46,8 +50,18 @@ void Tests() {
         moveZeroes(nums);
         assert(expected_nums == nums);
     }{
+        vector<int> nums{2,0,0,0,0};
+        vector<int> expected_nums = nums;;
+        moveZeroes(nums);
+        assert(expected_nums == nums);
+    }{
         vector<int> nums{0};
         vector<int> expected_nums{0};
+        moveZeroes(nums);
+        assert(expected_nums == nums);
+    }{
+        vector<int> nums{0,0,0,0,0,0,0,0,0};
+        vector<int> expected_nums = nums;
         moveZeroes(nums);
         assert(expected_nums == nums);
     }{
