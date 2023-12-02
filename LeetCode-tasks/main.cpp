@@ -2,6 +2,7 @@
 #include <cassert>
 #include <iostream>
 #include <algorithm>
+#include <unordered_map>
 
 using namespace std;
 
@@ -24,18 +25,22 @@ ostream& operator<<(ostream& out, const vector<int>& vec) {
 * You can return the answer in any order.
 *******************************************************/
 
-// Сложность: O(N^2)
-// Runtime: 276 ms - runtime beats 33.98 % of cpp submissions.
-// Memory Usage: 10.4 MB - memory usage beats 95.56 % of cpp submissions.
+// Сложность: O(2*N)
+// Runtime: 9 ms - runtime beats 71.92 % of cpp submissions.
+// Memory Usage: 12.2  MB - memory usage beats 11.13 % of cpp submissions.
 vector<int> twoSum(vector<int>& nums, int target) {
     if (nums.size() < 2) {
         return {};
     }
-    for (size_t i = 0; i < nums.size() - 1; ++i) {
-        for (size_t j = i + 1; j < nums.size(); ++j) {
-            if (nums[i] + nums[j] == target) {
-                return {static_cast<int>(i), static_cast<int>(j)};
-            }
+    unordered_map<int, int> hash_table(nums.size());
+    // int т.к. 2 <= nums.length <= 10'000
+    for (int i = 0; i < static_cast<int>(nums.size()); ++i) {
+        hash_table[nums[i]] = i;
+    }
+    for (int i = 0; i < static_cast<int>(nums.size()); ++i) {
+        unordered_map<int, int>::const_iterator it_need_num = hash_table.find(target - nums[i]);
+        if (it_need_num != hash_table.cend() && it_need_num->second != i) {
+            return {i, it_need_num->second};
         }
     }
     return {};
