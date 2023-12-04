@@ -13,72 +13,52 @@ ostream& operator<<(ostream& out, const vector<int>& vec) {
     return out;
 }
 
-// Two Sum
-// https://leetcode.com/explore/interview/card/top-interview-questions-easy/92/array/546/
+// Reverse String
+// https://leetcode.com/explore/interview/card/top-interview-questions-easy/127/strings/879/
 /******************************************************
-* Given an array of integers nums and an integer target, return
-* indices of the two numbers such that they add up to target.
-*
-* You may assume that each input would have exactly one solution,
-* and you may not use the same element twice.
-*
-* You can return the answer in any order.
+* Write a function that reverses a string. The input string is given as an array of characters s.
+
+* You must do this by modifying the input array in-place with O(1) extra memory.
 *******************************************************/
 
-// Сложность: O(N)
-// Runtime: 3 ms - runtime beats 99.25 % of cpp submissions.
-// Memory Usage: 12.2  MB - memory usage beats 25.82 % of cpp submissions.
-vector<int> twoSum(vector<int>& nums, int target) {
-    if (nums.size() < 2) {
-        return {};
+// Сложность: O(N / 2)
+// Runtime: 11 ms - runtime beats 94.81 % of cpp submissions.
+// Memory Usage: 23.5  MB - memory usage beats 95.72 % of cpp submissions.
+void reverseString(vector<char>& s) {
+    if (s.empty()) {
+        return;
     }
-    unordered_map<int, int> hash_table(nums.size());
-    // int т.к. 2 <= nums.length <= 10'000
-    for (int i = 0; i < static_cast<int>(nums.size()); ++i) {
-        unordered_map<int, int>::const_iterator it_need_num = hash_table.find(target - nums[i]);
-        if (it_need_num != hash_table.cend()) {
-            return {it_need_num->second, i};
-        }
-        hash_table[nums[i]] = i;
+    const uint32_t kSizeStr = static_cast<uint32_t>(s.size());
+    for (uint32_t i = 0; i < kSizeStr / 2; ++i) {
+        swap(s[i], s[kSizeStr - 1 - i]);
     }
-    return {};
 }
 
 void Tests() {
     {
-        vector<int> nums{2,7,11,15};
-        constexpr int kTarger = 9;
-        vector<int> expected_nums{0,1};
-        assert(expected_nums == twoSum(nums, kTarger));
+        vector<char> str{'h','e','l','l','o'};
+        vector<char> expected_str{'o','l','l','e','h'};
+        reverseString(str);
+        assert(expected_str == str);
     }{
-        vector<int> nums{3,2,4};
-        constexpr int kTarger = 6;
-        vector<int> expected_nums{1,2};
-        assert(expected_nums == twoSum(nums, kTarger));
+        vector<char> str{'H','a','n','n','a','h'};
+        vector<char> expected_str{'h','a','n','n','a','H'};
+        reverseString(str);
+        assert(expected_str == str);
     }{
-        vector<int> nums{3,3};
-        constexpr int kTarger = 6;
-        vector<int> expected_nums{0,1};
-        assert(expected_nums == twoSum(nums, kTarger));
+        vector<char> str{'H'};
+        vector<char> expected_str{'H'};
+        reverseString(str);
+        assert(expected_str == str);
     }{
-        vector<int> nums{5};
-        constexpr int kTarger = 6;
-        assert(twoSum(nums, kTarger).empty());
+        vector<char> str{'A','A','A','A'};
+        vector<char> expected_str = str;
+        reverseString(str);
+        assert(expected_str == str);
     }{
-        vector<int> nums{3,2,4,-5};
-        constexpr int kTarger = -3;
-        vector<int> expected_nums{1,3};
-        assert(expected_nums == twoSum(nums, kTarger));
-    }{
-        vector<int> nums{-23,-4,-9,-7,0};
-        constexpr int kTarger = -30;
-        vector<int> expected_nums{0,3};
-        assert(expected_nums == twoSum(nums, kTarger));
-    }{
-        vector<int> nums{-23,-4,-9,-7,0};
-        constexpr int kTarger = -4;
-        vector<int> expected_nums{1,4};
-        assert(expected_nums == twoSum(nums, kTarger));
+        vector<char> str;
+        reverseString(str);
+        assert(str.empty());
     }
     cerr << "Tests has passed\n"s;
 }
