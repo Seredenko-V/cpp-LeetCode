@@ -1,65 +1,48 @@
-#include <vector>
 #include <cassert>
 #include <iostream>
+#include <limits>
+#include <string>
 #include <algorithm>
-#include <unordered_map>
 
 using namespace std;
 
-ostream& operator<<(ostream& out, const vector<int>& vec) {
-    for (int value : vec) {
-        out << value << ' ';
-    }
-    return out;
-}
-
-// Reverse String
-// https://leetcode.com/explore/interview/card/top-interview-questions-easy/127/strings/879/
+// Reverse Integer
+// https://leetcode.com/explore/interview/card/top-interview-questions-easy/127/strings/880/
 /******************************************************
-* Write a function that reverses a string. The input string is given as an array of characters s.
-
-* You must do this by modifying the input array in-place with O(1) extra memory.
+* Нужно развернуть цифры числа, которое записано в виде строки.
+* Если изменение числа приводит к выходу значения за пределы
+* диапазона 32-битных целых чисел со знаком [-2^31, 2^31 - 1],
+* нужно вернуть 0.
 *******************************************************/
 
-// Сложность: O(N / 2)
-// Runtime: 11 ms - runtime beats 94.81 % of cpp submissions.
-// Memory Usage: 23.5  MB - memory usage beats 95.72 % of cpp submissions.
-void reverseString(vector<char>& s) {
-    if (s.empty()) {
-        return;
+// Сложность: O(N)
+// Runtime: 0 ms - runtime beats 100.00 % of cpp submissions.
+// Memory Usage: 6.7  MB - memory usage beats ??? % of cpp submissions.
+int reverse(int x) {
+    if (x <= numeric_limits<int>::min() || x > numeric_limits<int>::max()) {
+        return 0;
     }
-    const uint32_t kSizeStr = static_cast<uint32_t>(s.size());
-    for (uint32_t i = 0; i < kSizeStr / 2; ++i) {
-        swap(s[i], s[kSizeStr - 1 - i]);
+    string str = to_string(x);
+    if (x < 0) {
+        str.push_back('-');
     }
+    std::reverse(str.begin(), str.end());
+    int result = 0;
+    try {
+        result = stoi(str);
+    } catch (const out_of_range& /*exception*/) {
+        return 0;
+    }
+    return result;
 }
 
 void Tests() {
-    {
-        vector<char> str{'h','e','l','l','o'};
-        vector<char> expected_str{'o','l','l','e','h'};
-        reverseString(str);
-        assert(expected_str == str);
-    }{
-        vector<char> str{'H','a','n','n','a','h'};
-        vector<char> expected_str{'h','a','n','n','a','H'};
-        reverseString(str);
-        assert(expected_str == str);
-    }{
-        vector<char> str{'H'};
-        vector<char> expected_str{'H'};
-        reverseString(str);
-        assert(expected_str == str);
-    }{
-        vector<char> str{'A','A','A','A'};
-        vector<char> expected_str = str;
-        reverseString(str);
-        assert(expected_str == str);
-    }{
-        vector<char> str;
-        reverseString(str);
-        assert(str.empty());
-    }
+    assert(reverse(123) == 321);
+    assert(reverse(-123) == -321);
+    assert(reverse(120) == 21);
+    assert(reverse(132000) == 231);
+    assert(reverse(numeric_limits<int>::min()) == 0);
+    assert(reverse(1'534'236'469) == 0);
     cerr << "Tests has passed\n"s;
 }
 
