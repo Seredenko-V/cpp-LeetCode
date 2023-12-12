@@ -3,6 +3,7 @@
 #include <limits>
 #include <string>
 #include <algorithm>
+#include <cmath>
 
 using namespace std;
 
@@ -16,24 +17,47 @@ using namespace std;
 *******************************************************/
 
 // Сложность: O(N)
-// Runtime: 0 ms - runtime beats 100.00 % of cpp submissions.
-// Memory Usage: 6.7  MB - memory usage beats ??? % of cpp submissions.
+// Runtime: 5 ms - runtime beats 13.72 % of cpp submissions.
+// Memory Usage: 6.5  MB - memory usage beats ??? % of cpp submissions.
 int reverse(int x) {
     if (x <= numeric_limits<int>::min() || x > numeric_limits<int>::max()) {
         return 0;
     }
-    string str = to_string(x);
-    if (x < 0) {
-        str.push_back('-');
+    int64_t result = 0;
+    int num_digits = 0;
+    for (int i = 1; num_digits != 9; ++i) {
+        const int kCurrentDigit = pow(10, i);
+        if (x % kCurrentDigit != x) {
+            ++num_digits;
+        } else {
+            break;
+        }
     }
-    std::reverse(str.begin(), str.end());
-    int result = 0;
-    try {
-        result = stoi(str);
-    } catch (const out_of_range& /*exception*/) {
+    if (x < 0) {
+        for (int i = 1; i <= num_digits + 1; ++i) {
+            const int64_t kCurrentDigit = pow(10, i);
+            int64_t tmp_value = x % kCurrentDigit;
+            tmp_value /= pow(10, i - 1);
+            tmp_value *= pow(10, num_digits - i + 1);
+            result -= tmp_value;
+        }
+    } else {
+        for (int i = 1; i <= num_digits + 1; ++i) {
+            const int64_t kCurrentDigit = pow(10, i);
+            int64_t tmp_value = x % kCurrentDigit;
+            tmp_value /= pow(10, i - 1);
+            tmp_value *= pow(10, num_digits - i + 1);
+            result += tmp_value;
+        }
+    }
+    if (x < 0) {
+        result = -result;
+    }
+    // переполнение
+    if (result > numeric_limits<int>::max() || result < numeric_limits<int>::min()) {
         return 0;
     }
-    return result;
+    return static_cast<int>(result);
 }
 
 void Tests() {
