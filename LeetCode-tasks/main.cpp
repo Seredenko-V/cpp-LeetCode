@@ -1,7 +1,7 @@
 #include <cassert>
 #include <iostream>
 #include <string>
-#include <map>
+#include <vector>
 
 using namespace std;
 
@@ -13,22 +13,20 @@ using namespace std;
 *******************************************************/
 
 // Сложность: O(2*N)
-// Runtime: 65 ms - runtime beats 5.10 % of cpp submissions.
-// Memory Usage: 11.2  MB - memory usage beats 17.10 % of cpp submissions.
+// Runtime: 26 ms - runtime beats 72.68 % of cpp submissions.
+// Memory Usage: 11  MB - memory usage beats 83.11 % of cpp submissions.
 int firstUniqChar(string s) {
-    map<char, pair<int, int>> elems;
+    constexpr uint16_t kSizeAlphabet = 26u;
+    vector<uint16_t> nums_symbols(kSizeAlphabet, 0);
     for (size_t i = 0; i < s.size(); ++i) {
-        elems[s[i]].first = i;
-        ++elems[s[i]].second;
+        ++nums_symbols[s[i] - 'a'];
     }
-    int pos_first_unique = -1;
-    for (const pair<const char, pair<int, int>>& elem : elems) {
-        const pair<int, int>& stat = elem.second;
-        if (stat.second == 1 && (stat.first < pos_first_unique || pos_first_unique == -1)) {
-            pos_first_unique = stat.first;
+    for (size_t i = 0; i < s.size(); ++i) {
+        if (nums_symbols[s[i] - 'a'] == 1) {
+            return i;
         }
     }
-    return pos_first_unique;
+    return -1;
 }
 
 void Tests() {
