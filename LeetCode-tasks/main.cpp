@@ -1,7 +1,7 @@
 #include <cassert>
 #include <iostream>
 #include <string>
-#include <algorithm>
+#include <vector>
 
 using namespace std;
 
@@ -15,15 +15,23 @@ using namespace std;
 *******************************************************/
 
 // Сложность: O(2*N)
-// Runtime: 16 ms - runtime beats 9.26 % of cpp submissions.
+// Runtime: 7 ms - runtime beats 73.21 % of cpp submissions.
 // Memory Usage: 7.7  MB - memory usage beats 78.65 % of cpp submissions.
 bool isAnagram(string s, string t) {
     if (s.size() != t.size()) {
         return false;
     }
-    sort(s.begin(), s.end());
-    sort(t.begin(), t.end());
-    return s == t;
+    static constexpr uint16_t kSizeAlphabet = 26u;
+    vector<int> num_symbols(kSizeAlphabet);
+    for (char symbol : s) {
+        ++num_symbols[symbol - 'a'];
+    }
+    for (char symbol : t) {
+        if (--num_symbols[symbol - 'a'] < 0) {
+            return false;
+        }
+    }
+    return true;
 }
 
 void Tests() {
