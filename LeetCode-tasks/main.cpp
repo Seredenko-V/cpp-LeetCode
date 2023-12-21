@@ -1,37 +1,39 @@
 #include <cassert>
 #include <iostream>
 #include <string>
-#include <unordered_map>
+#include <map>
 
 using namespace std;
 
-// First Unique Character in a String
-// https://leetcode.com/explore/interview/card/top-interview-questions-easy/127/strings/881/
+// Valid Anagram
+// https://leetcode.com/explore/interview/card/top-interview-questions-easy/127/strings/882/
 /******************************************************
-* Дана строка s, найдите в ней первый неповторяющийся символ и верните его индекс.
-* Если он не существует, верните -1.
+* Даны две строки s и t, верните true, если t является анаграммой s, и false в противном случае.
+*
+* Анаграмма — это слово или фраза, образованная перестановкой букв другого слова или фразы,
+* обычно с использованием всех исходных букв ровно один раз.
 *******************************************************/
 
 // Сложность: O(2*N)
-// Runtime: 38 ms - runtime beats 30.97 % of cpp submissions.
-// Memory Usage: 11.1  MB - memory usage beats 34.28 % of cpp submissions.
-int firstUniqChar(string s) {
-    unordered_map<char, uint16_t> nums_symbols;
-    for (size_t i = 0; i < s.size(); ++i) {
-        ++nums_symbols[s[i] - 'a'];
+// Runtime: 14 ms - runtime beats 19.95 % of cpp submissions.
+// Memory Usage: 7.8  MB - memory usage beats 44.04 % of cpp submissions.
+bool isAnagram(string s, string t) {
+    if (s.size() != t.size()) {
+        return false;
     }
+    map<char, uint32_t> letters_s, letters_t;
     for (size_t i = 0; i < s.size(); ++i) {
-        if (nums_symbols[s[i] - 'a'] == 1) {
-            return i;
-        }
+        ++letters_s[s[i]];
+        ++letters_t[t[i]];
     }
-    return -1;
+    return letters_s == letters_t;
 }
 
 void Tests() {
-    assert(firstUniqChar("leetcode"s) == 0);
-    assert(firstUniqChar("loveleetcode"s) == 2);
-    assert(firstUniqChar("aabb"s) == -1);
+    assert(isAnagram("anagram"s, "nagaram"s));
+    assert(!isAnagram("rat"s, "car"s));
+    assert(isAnagram("a"s, "a"s));
+    assert(!isAnagram("a"s, "b"s));
     cerr << "Tests has passed\n"s;
 }
 
