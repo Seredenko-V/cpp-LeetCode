@@ -1,7 +1,7 @@
 #include <cassert>
 #include <iostream>
 #include <string>
-#include <vector>
+#include <unordered_map>
 
 using namespace std;
 
@@ -13,11 +13,10 @@ using namespace std;
 *******************************************************/
 
 // Сложность: O(2*N)
-// Runtime: 26 ms - runtime beats 72.68 % of cpp submissions.
-// Memory Usage: 11  MB - memory usage beats 83.11 % of cpp submissions.
+// Runtime: 38 ms - runtime beats 30.97 % of cpp submissions.
+// Memory Usage: 11.1  MB - memory usage beats 34.28 % of cpp submissions.
 int firstUniqChar(string s) {
-    constexpr uint16_t kSizeAlphabet = 26u;
-    vector<uint16_t> nums_symbols(kSizeAlphabet, 0);
+    unordered_map<char, uint16_t> nums_symbols;
     for (size_t i = 0; i < s.size(); ++i) {
         ++nums_symbols[s[i] - 'a'];
     }
