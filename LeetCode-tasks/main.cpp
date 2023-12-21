@@ -1,7 +1,7 @@
 #include <cassert>
 #include <iostream>
 #include <string>
-#include <set>
+#include <algorithm>
 
 using namespace std;
 
@@ -15,18 +15,15 @@ using namespace std;
 *******************************************************/
 
 // Сложность: O(2*N)
-// Runtime: 61 ms - runtime beats 0 % of cpp submissions.
-// Memory Usage: 24.2  MB - memory usage beats 0 % of cpp submissions.
+// Runtime: 16 ms - runtime beats 9.26 % of cpp submissions.
+// Memory Usage: 7.7  MB - memory usage beats 78.65 % of cpp submissions.
 bool isAnagram(string s, string t) {
     if (s.size() != t.size()) {
         return false;
     }
-    multiset<char> letters_s, letters_t;
-    for (size_t i = 0; i < s.size(); ++i) {
-        letters_s.insert(s[i]);
-        letters_t.insert(t[i]);
-    }
-    return letters_s == letters_t;
+    sort(s.begin(), s.end());
+    sort(t.begin(), t.end());
+    return s == t;
 }
 
 void Tests() {
