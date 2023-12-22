@@ -5,29 +5,39 @@
 
 using namespace std;
 
-// Valid Anagram
-// https://leetcode.com/explore/interview/card/top-interview-questions-easy/127/strings/882/
+// Valid Palindrome
+// https://leetcode.com/explore/interview/card/top-interview-questions-easy/127/strings/883/
 /******************************************************
-* Даны две строки s и t, верните true, если t является анаграммой s, и false в противном случае.
-*
-* Анаграмма — это слово или фраза, образованная перестановкой букв другого слова или фразы,
-* обычно с использованием всех исходных букв ровно один раз.
+* Фраза является палиндромом, если после преобразования всех заглавных букв в строчные и
+* удаления всех небуквенно-цифровых символов она читается одинаково и вперед, и назад.
+* Буквенно-цифровые символы включают буквы и цифры.
+
+* Учитывая строку s, верните true, если это палиндром, или false в противном случае.
 *******************************************************/
 
-// Сложность: O(2*N)
-// Runtime: 7 ms - runtime beats 73.21 % of cpp submissions.
-// Memory Usage: 7.7  MB - memory usage beats 78.65 % of cpp submissions.
-bool isAnagram(string s, string t) {
-    if (s.size() != t.size()) {
-        return false;
-    }
-    static constexpr uint16_t kSizeAlphabet = 26u;
-    vector<int> num_symbols(kSizeAlphabet);
+string GetPreparedStr(const string& s) {
+    string ready_str(s.size(), '#');
+    size_t count_symbols = 0;
     for (char symbol : s) {
-        ++num_symbols[symbol - 'a'];
+        if (isalnum(symbol)) {
+            ready_str[count_symbols++] = tolower(symbol);
+        }
     }
-    for (char symbol : t) {
-        if (--num_symbols[symbol - 'a'] < 0) {
+    ready_str.resize(count_symbols);
+    return ready_str;
+}
+
+// Сложность: O(2*N)
+// Runtime: 4 ms - runtime beats 80.37 % of cpp submissions.
+// Memory Usage: 7.7  MB - memory usage beats 47.87 % of cpp submissions.
+bool isPalindrome(string s) {
+    if (s.size() < 2) {
+        return true;
+    }
+    string ready_str = GetPreparedStr(s);
+    size_t half = ready_str.size() / 2;
+    for (size_t i = 0; i < half; ++i) {
+        if (ready_str[i] != ready_str[ready_str.size() - 1 - i]) {
             return false;
         }
     }
@@ -35,10 +45,10 @@ bool isAnagram(string s, string t) {
 }
 
 void Tests() {
-    assert(isAnagram("anagram"s, "nagaram"s));
-    assert(!isAnagram("rat"s, "car"s));
-    assert(isAnagram("a"s, "a"s));
-    assert(!isAnagram("a"s, "b"s));
+    assert(isPalindrome("A man, a plan, a canal: Panama"s));
+    assert(!isPalindrome("race a car"s));
+    assert(isPalindrome(" "s));
+    assert(isPalindrome("12321"s));
     cerr << "Tests has passed\n"s;
 }
 
