@@ -1,58 +1,58 @@
 #include <cassert>
 #include <iostream>
-#include <cstdint>
-#include <stdexcept>
-#include <string>
+#include <vector>
+#include <algorithm>
+#include <sstream>
 
 using namespace std;
 
-// Определить количество сочетаний с повторениями
-// https://new.contest.yandex.ru/48556/problem?id=215/2023_04_06/WoW7IdbfFr
+// Бронирование переговорки
+// https://new.contest.yandex.ru/48557/problem?id=215/2023_04_06/RdGbbmsLQn
+// Задано n интервалов. Требуется найти максимальное количество взаимно непересекающихся интервалов.
+// Два интервала пересекаются, если они имеют хотя бы одну общую точку.
 
-uint64_t Factorial(int n) {
-    uint64_t fact = 1u;
-    for (uint8_t i = 2; i <= n; ++i) {
-        fact *= i;
+vector<pair<int, int>> ReadRanges(istream& in) {
+    int num_ranges = 0;
+    in >> num_ranges;
+    vector<pair<int, int>> ranges(num_ranges);
+    for (int i = 0; i < num_ranges; ++i) {
+        in >> ranges[i].first >> ranges[i].second;
+        if (ranges[i].first < 1 || ranges[i].first > ranges[i].second || ranges[i].second > 50) {
+            return {};
+        }
     }
-    return fact;
+    sort(ranges.begin(), ranges.end());
+    vector<pair<int, int>>::const_iterator last_unique = unique(ranges.begin(), ranges.end());
+    ranges.erase(last_unique, ranges.cend());
+    return ranges;
 }
 
-uint64_t NumCombinations(int n, int k) {
-    if (n < k) {
-        return 0;
+namespace tests {
+    void TestReadRanges() {
+        istringstream input{
+            "5\n"
+            "1 3\n"
+            "1 3\n"
+            "2 3\n"
+            "4 5\n"
+            "4 5\n"
+        };
+        vector<pair<int, int>> expected_ranges{{1, 3}, {2, 3}, {4, 5}};
+        vector<pair<int, int>> ranges = ReadRanges(input);
+        assert(expected_ranges == ranges);
+        cerr << "TestReadRanges passed\n";
     }
-    if (n > 7 || k > 7) {
-        return 0;
-    }
-    if (n < 1 || k < 1) {
-        return 0;
-    }
-    return Factorial(n) / (Factorial(k) * Factorial(n - k));
-}
 
-uint64_t NumCombinationsWithRepeats(int n, int k) {
-    if (n > 4 || k > 4) {
-        return 0;
+    void RunAllTests() {
+        TestReadRanges();
+        cerr << "All tests passed\n"s;
     }
-    if (n < 1 || k < 1) {
-        return 0;
-    }
-    return NumCombinations(n + k - 1, k);
-}
+} // namespace tests
 
-void Tests() {
-    assert(NumCombinationsWithRepeats(4, 4) == 35);
-    assert(NumCombinationsWithRepeats(4, 3) == 20);
-    assert(NumCombinationsWithRepeats(2, 2) == 3);
-    assert(NumCombinationsWithRepeats(1, 1) == 1);
-    assert(NumCombinationsWithRepeats(2, 4) == 5);
-    cerr << "Tests passed\n"s;
-}
+
 
 int main() {
-    Tests();
-    int n = 0, k = 0;
-    cin >> n >> k;
-    cout << NumCombinationsWithRepeats(n, k);
+    tests::RunAllTests();
+
     return 0;
 }
