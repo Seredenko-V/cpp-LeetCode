@@ -19,11 +19,11 @@ using namespace std;
 ostream& operator<<(ostream& out, const vector<vector<bool>>& vec) {
     for (const vector<bool>& str : vec) {
         for (bool elem : str) {
-            cout << elem << ' ';
+            out << elem << ' ';
         }
-        cout << endl;
+        out << endl;
     }
-    cout << "=========================\n";
+    out << "=========================\n";
     return out;
 }
 
@@ -38,7 +38,7 @@ vector<vector<bool>> CreateMatrix(int n, int m) {
 
     for (int i = 1; i < n; ++i) {
         for (int j = 1; j < m; ++j) {
-            if (matrix[i - 1][j] && matrix[i][j - 1] && matrix[i - 1][j - 1]) {
+            if (matrix[i - 1][j - 1] == false) {
                 matrix[i][j] = false;
             }
         }
@@ -62,15 +62,15 @@ namespace tests {
         {
             vector<vector<bool>> expected_matrix{
                 {0, 1},
-                {1, 1}
+                {1, 0}
             };
             vector<vector<bool>> matrix = CreateMatrix(2, 2);
             assert(expected_matrix == matrix);
         }{
             vector<vector<bool>> expected_matrix{
                 {0, 1, 1},
-                {1, 1, 0},
                 {1, 0, 1},
+                {1, 1, 0},
             };
             vector<vector<bool>> matrix = CreateMatrix(3, 3);
             assert(expected_matrix == matrix);
