@@ -1,63 +1,68 @@
 #include <iostream>
 #include <vector>
 #include <cassert>
+#include <sstream>
 
 using namespace std;
 
-// Сортировка выбором
-// https://new.contest.yandex.ru/48569/problem?id=215/2023_04_06/08fmDTMXQZ
+// Слияние сортированных последовательностей
+// https://new.contest.yandex.ru/48569/problem?id=215/2023_04_06/RRehKswGis
+// Задано n отсортированных по неубыванию последовательностей.
+// Требуется найти отсортированную по неубыванию конкатенацию этих последовательностей.
 
 // =============================== АЛГОРИТМ РЕШЕНИЯ ================================
-// N/2 раз ищем минимальный элемент в последовательности и ставим его на i-ю позицию
 
-template <typename Type>
-void SelectionSort(vector<Type>& vec) {
-    for (size_t i = 0; i < vec.size() - 1; ++i) {
-        size_t min_pos = i;
-        for (size_t j = i + 1; j < vec.size(); ++j) {
-            if (vec[min_pos] > vec[j]) {
-                min_pos = j;
-            }
+vector<int> Merge(const vector<vector<int>>& vec) {
+
+}
+
+vector<vector<int>> ReadSequences(istream& in) {
+    int num_sequences = 0;
+    in >> num_sequences;
+    vector<vector<int>> sequences(num_sequences);
+    for (vector<int>& seq : sequences) {
+        int size = 0;
+        in >> size;
+        seq.resize(size);
+        for (int& element : seq) {
+            in >> element;
         }
-        swap(vec[i], vec[min_pos]);
     }
+    return sequences;
 }
 
 void Test() {
     {
-        vector<int> sequence{13, 17, 37, 73, 31, 19, 23};
-        vector<int> expected_sequence{13, 17, 19, 23, 31, 37, 73};
-        SelectionSort(sequence);
-        assert(sequence == expected_sequence);
+        istringstream in{
+            "3\n"
+            "3\n"
+            "1 2 3\n"
+            "2\n"
+            "1 2\n"
+            "4\n"
+            "3 5 6 7\n"
+        };
+        vector<int> expected{1,1,2,2,3,3,5,6,7};
+        assert(Merge(ReadSequences(in)) == expected);
     }{
-        vector<int> sequence{12, 18, 7, 11, 5, 17};
-        vector<int> expected_sequence{5, 7, 11, 12, 17, 18};
-        SelectionSort(sequence);
-        assert(sequence == expected_sequence);
-    }{
-        vector<int> sequence{1, 2, 3};
-        vector<int> expected_sequence = sequence;
-        SelectionSort(sequence);
-        assert(sequence == expected_sequence);
-    }{
-        vector<int> sequence{8};
-        vector<int> expected_sequence = sequence;
-        SelectionSort(sequence);
-        assert(sequence == expected_sequence);
+        istringstream in{
+            "2\n"
+            "2\n"
+            "1 10\n"
+            "3\n"
+            "7 9 11\n"
+        };
+        vector<int> expected{1,7,9,10,11};
+        assert(Merge(ReadSequences(in)) == expected);
     }
     cerr << "Test passed\n"s;
 }
 
 int main() {
     Test();
-    int size = 0;
-    cin >> size;
-    vector<int> sequence(size);
-    for (int& element : sequence) {
-        cin >> element;
-    }
-    SelectionSort(sequence);
-    for (int element : sequence) {
+    vector<vector<int>> sequences = ReadSequences(cin);
+    vector<int> merged_sequences = Merge(sequences);
+    for (int element : merged_sequences) {
         cout << element << ' ';
     }
     cout << endl;
