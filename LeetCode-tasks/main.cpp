@@ -1,98 +1,104 @@
 #include <iostream>
 #include <vector>
 #include <cassert>
-#include <sstream>
 #include <algorithm>
 
 using namespace std;
 
-// Сортировка слиянием
-// https://new.contest.yandex.ru/48569/problem?id=215/2023_04_06/xwt1i1wLpb
+// Разбиение Ломуто.
+// https://new.contest.yandex.ru/48570/problem?id=215/2023_04_06/onaxya4yqZ
+// Постройте разбиение Ломуто относительно первого числа.
+// В тестах хендбука ошибка. Данное решение является верным
 
-vector<int> Merge(const vector<int>& lhs, const vector<int>& rhs) {
-    vector<int> result_seq(lhs.size() + rhs.size());
-    size_t counter_lhs = 0;
-    size_t counter_rhs = 0;
-    while (counter_lhs != lhs.size() && counter_rhs != rhs.size()) {
-        if (lhs[counter_lhs] < rhs[counter_rhs]) {
-            result_seq[counter_lhs + counter_rhs] = lhs[counter_lhs];
-            ++counter_lhs;
-        } else {
-            result_seq[counter_lhs + counter_rhs] = rhs[counter_rhs];
-            ++counter_rhs;
-        }
+ostream& operator<<(ostream& out, const vector<int>& vec) {
+    for (int element : vec) {
+        out << element << ' ';
     }
-    while (counter_lhs != lhs.size()) {
-        result_seq[counter_lhs + counter_rhs] = lhs[counter_lhs];
-        ++counter_lhs;
-    }
-    while (counter_rhs != rhs.size()) {
-        result_seq[counter_lhs + counter_rhs] = rhs[counter_rhs];
-        ++counter_rhs;
-    }
-    return result_seq;
+    return out;
 }
 
-void MergeSort(vector<int>& seq) {
-    if (seq.size() < 2) {
-        return;
+template <typename Iterator>
+void BubbleSort(Iterator begin, Iterator end) {
+    for (Iterator it_external = begin; it_external != end; ++it_external) {
+        Iterator it_end = prev(end);
+        for (Iterator it_internal = begin; it_internal != it_end; ++it_internal) {
+            if (*it_internal > *next(it_internal)) {
+                swap(*it_internal, *next(it_internal));
+            }
+        }
+        --it_end;
     }
-    vector<int> lhs(seq.size() / 2);
-    vector<int> rhs(seq.size() / 2 + seq.size() % 2);
-    copy(seq.begin(), seq.begin() + lhs.size(), lhs.begin());
-    copy(seq.begin() + lhs.size(), seq.end(), rhs.begin());
-    MergeSort(lhs);
-    MergeSort(rhs);
-    seq = Merge(lhs, rhs);
 }
 
-vector<int> ReadSequence(istream& in) {
-    int size = 0;
-    in >> size;
-    if (size < 1 || size > 1e5) {
-        return {};
-    }
-    vector<int> sequence(size);
-    for (int& element : sequence) {
-        in >> element;
-        if (element < 0 || element > 1e9) {
-            return {};
+void LomutoSplit(vector<int>& seq) {
+    constexpr size_t kIndexPivot = 0;
+    size_t index_last_less_elem = 1;
+    for (size_t i = index_last_less_elem; i < seq.size(); ++i) {
+        if (seq[i] < seq[kIndexPivot]) {
+            swap(seq[i], seq[index_last_less_elem++]);
         }
     }
-    return sequence;
+    BubbleSort(seq.begin(), seq.begin() + index_last_less_elem);
 }
 
 namespace tests {
-    void TestMergeSort() {
-        {
-            vector<int> seq{13,17,37,73,31,19,23};
-            const vector<int> kExpectedSeq{13,17,19,23,31,37,73};
-            MergeSort(seq);
+    void TestBubbleSorting() {
+        { // весь диапазон
+            vector<int> seq{3,4,6,1};
+            const vector<int> kExpectedSeq{1,3,4,6};
+            BubbleSort(seq.begin(), seq.end());
             assert(seq == kExpectedSeq);
         }{
-            vector<int> seq{18,20,3,17};
-            const vector<int> kExpectedSeq{3,17,18,20};
-            MergeSort(seq);
+            vector<int> seq{3,4,7,17};
+            const vector<int> kExpectedSeq(seq);
+            BubbleSort(seq.begin(), seq.end());
             assert(seq == kExpectedSeq);
-        }{
-            vector<int> seq{0,11,0};
-            const vector<int> kExpectedSeq{0,0,11};
-            MergeSort(seq);
+        }{ // часть диапазона
+            vector<int> seq{4,3,2,1,7,5,8,9,6};
+            const vector<int> kExpectedSeq{1,2,3,4,7,5,8,9,6};
+            BubbleSort(seq.begin(), seq.begin() + 4);
             assert(seq == kExpectedSeq);
         }
-        cerr << "TestMergeSort passed"s << endl;
+        cerr << "TestBubbleSorting passed"s << endl;
+    }
+
+    void TestLomutoSplitting() {
+        {
+            vector<int> seq{4,7,2,5,3,1,8,9,6};
+            const vector<int> kExpectedSeq{1,2,3,4,7,5,8,9,6};
+            LomutoSplit(seq);
+            assert(seq == kExpectedSeq);
+        }{
+            vector<int> seq{3,4,7,17};
+            const vector<int> kExpectedSeq(seq);
+            LomutoSplit(seq);
+            assert(seq == kExpectedSeq);
+        }{
+            vector<int> seq{1,3,2,9,10};
+            const vector<int> kExpectedSeq(seq);
+            LomutoSplit(seq);
+            assert(seq == kExpectedSeq);
+        }
+        cerr << "TestLomutoSplitting passed"s << endl;
+    }
+
+    void RunAllTests() {
+        TestBubbleSorting();
+        TestLomutoSplitting();
+        cerr << ">>> AllTests passed <<<"s << endl;
     }
 } // namespace tests
 
 
-
 int main() {
-    tests::TestMergeSort();
-    vector<int> seq = ReadSequence(cin);
-    MergeSort(seq);
-    for (int element : seq) {
-        cout << element << ' ';
+    tests::RunAllTests();
+    int size = 0;
+    cin >> size;
+    vector<int> seq(size);
+    for (int& element : seq) {
+        cin >> element;
     }
-    cout << endl;
+    LomutoSplit(seq);
+    cout << seq << endl;
     return 0;
 }
