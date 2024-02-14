@@ -1,14 +1,13 @@
 #include <iostream>
 #include <vector>
 #include <cassert>
-#include <algorithm>
 
 using namespace std;
 
-// Разбиение Ломуто.
-// https://new.contest.yandex.ru/48570/problem?id=215/2023_04_06/onaxya4yqZ
-// Постройте разбиение Ломуто относительно первого числа.
-// В тестах хендбука ошибка. Данное решение является верным
+// Быстрая сортировка.
+// https://new.contest.yandex.ru/48570/problem?id=215/2023_04_06/qQS9a7rB0y
+
+// Опорный элемент всегда последний. Решение не проходит по скорости
 
 ostream& operator<<(ostream& out, const vector<int>& vec) {
     for (int element : vec) {
@@ -18,87 +17,84 @@ ostream& operator<<(ostream& out, const vector<int>& vec) {
 }
 
 template <typename Iterator>
-void BubbleSort(Iterator begin, Iterator end) {
-    for (Iterator it_external = begin; it_external != end; ++it_external) {
-        Iterator it_end = prev(end);
-        for (Iterator it_internal = begin; it_internal != it_end; ++it_internal) {
-            if (*it_internal > *next(it_internal)) {
-                swap(*it_internal, *next(it_internal));
-            }
-        }
-        --it_end;
+void QuickSort(Iterator begin, Iterator end) {
+    using Type = typename iterator_traits<Iterator>::value_type;
+    const size_t kSizeRange = distance(begin, end);
+    if (kSizeRange < 2) {
+        return;
     }
-}
 
-void LomutoSplit(vector<int>& seq) {
-    constexpr size_t kIndexPivot = 0;
-    size_t index_last_less_elem = 1;
-    for (size_t i = index_last_less_elem; i < seq.size(); ++i) {
-        if (seq[i] < seq[kIndexPivot]) {
-            swap(seq[i], seq[index_last_less_elem++]);
+    Iterator it_pivot = prev(end);
+    const Type kPivot = *it_pivot;
+    Iterator it = begin;
+    while (it != prev(it_pivot)) {
+        if (*it > kPivot) {
+            swap(*it_pivot, *prev(it_pivot));
+            swap(*it, *(it_pivot--));
+        } else {
+            ++it;
         }
     }
-    BubbleSort(seq.begin(), seq.begin() + index_last_less_elem);
+    // чтобы не менять дважды местами одни и те же числа
+    if (*it > kPivot) {
+        swap(*it, *(it_pivot--));
+    }
+    QuickSort(begin, it_pivot);
+    QuickSort(next(it_pivot), end);
 }
 
 namespace tests {
-    void TestBubbleSorting() {
-        { // весь диапазон
-            vector<int> seq{3,4,6,1};
-            const vector<int> kExpectedSeq{1,3,4,6};
-            BubbleSort(seq.begin(), seq.end());
-            assert(seq == kExpectedSeq);
-        }{
-            vector<int> seq{3,4,7,17};
-            const vector<int> kExpectedSeq(seq);
-            BubbleSort(seq.begin(), seq.end());
-            assert(seq == kExpectedSeq);
-        }{ // часть диапазона
-            vector<int> seq{4,3,2,1,7,5,8,9,6};
-            const vector<int> kExpectedSeq{1,2,3,4,7,5,8,9,6};
-            BubbleSort(seq.begin(), seq.begin() + 4);
-            assert(seq == kExpectedSeq);
-        }
-        cerr << "TestBubbleSorting passed"s << endl;
-    }
-
-    void TestLomutoSplitting() {
+    void TestQuickSort() {
         {
-            vector<int> seq{4,7,2,5,3,1,8,9,6};
-            const vector<int> kExpectedSeq{1,2,3,4,7,5,8,9,6};
-            LomutoSplit(seq);
+            vector<int> seq{2,12,5,48,0,4};
+            const vector<int> kExpectedSeq{0,2,4,5,12,48};
+            QuickSort(seq.begin(), seq.end());
             assert(seq == kExpectedSeq);
         }{
-            vector<int> seq{3,4,7,17};
-            const vector<int> kExpectedSeq(seq);
-            LomutoSplit(seq);
+            vector<int> seq{13,17,37,73,31,19,23};
+            const vector<int> kExpectedSeq{13,17,19,23,31,37,73};
+            QuickSort(seq.begin(), seq.end());
             assert(seq == kExpectedSeq);
         }{
-            vector<int> seq{1,3,2,9,10};
+            vector<int> seq{18,20,3,17};
+            const vector<int> kExpectedSeq{3,17,18,20};
+            QuickSort(seq.begin(), seq.end());
+            assert(seq == kExpectedSeq);
+        }{
+            vector<int> seq{1,11,1};
+            const vector<int> kExpectedSeq{1,1,11};
+            QuickSort(seq.begin(), seq.end());
+            assert(seq == kExpectedSeq);
+        }{
+            vector<int> seq{5};
             const vector<int> kExpectedSeq(seq);
-            LomutoSplit(seq);
+            QuickSort(seq.begin(), seq.end());
+            assert(seq == kExpectedSeq);
+        }{
+            vector<int> seq;
+            QuickSort(seq.begin(), seq.end());
+            assert(seq.empty());
+        }{
+            vector<int> seq{5,5,5,5,5,5,5,5,5};
+            const vector<int> kExpectedSeq(seq);
+            QuickSort(seq.begin(), seq.end());
             assert(seq == kExpectedSeq);
         }
-        cerr << "TestLomutoSplitting passed"s << endl;
-    }
-
-    void RunAllTests() {
-        TestBubbleSorting();
-        TestLomutoSplitting();
-        cerr << ">>> AllTests passed <<<"s << endl;
+        cerr << "TestQuickSort passed"s << endl;
     }
 } // namespace tests
 
 
 int main() {
-    tests::RunAllTests();
+    ctime(NULL);
+    tests::TestQuickSort();
     int size = 0;
     cin >> size;
     vector<int> seq(size);
     for (int& element : seq) {
         cin >> element;
     }
-    LomutoSplit(seq);
+    QuickSort(seq.begin(), seq.end());
     cout << seq << endl;
     return 0;
 }
