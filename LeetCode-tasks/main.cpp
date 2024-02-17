@@ -1,136 +1,101 @@
 #include <iostream>
 #include <vector>
 #include <cassert>
-#include <random>
+#include <cstdint>
 
 using namespace std;
 
-// Быстрая сортировка.
-// https://new.contest.yandex.ru/48570/problem?id=215/2023_04_06/qQS9a7rB0y
+// A(x) + B(x).
+// https://new.contest.yandex.ru/42492/problem?id=215/2022_11_08/r1Y2AFKOd5
 
-// Опорный элемент выбирается случайно. Решение для Random Access итераторов
+// Вычислить сумму многочленов
+// A(x) = a_n * x^n + ... + a_1 * x + a_0
+// B(x) = b_m * x^m + ... + b_1 * x + b_0
 
-ostream& operator<<(ostream& out, const vector<int>& vec) {
-    for (int element : vec) {
+template <typename T>
+ostream& operator<<(ostream& out, const vector<T>& vec) {
+    for (T element : vec) {
         out << element << ' ';
     }
     return out;
 }
 
-int GetRandomValue(int left_bound, int right_bound) {
-    static random_device rd;
-    static mt19937 gen(rd());
-    uniform_int_distribution<> distrib(left_bound, right_bound);
-    return distrib(gen);
-}
-
-template <typename Iterator>
-Iterator FindBound(Iterator begin, Iterator end, size_t size) {
-    using Type = typename iterator_traits<Iterator>::value_type;
-
-    Iterator it_pivot = begin + GetRandomValue(0, size);
-    const Type kPivot = *it_pivot;
-    Iterator left_ptr = begin;
-    Iterator right_ptr = prev(end);
-
-    while (left_ptr <= right_ptr) {
-        while (*left_ptr < kPivot) {
-            ++left_ptr;
-        }
-        while (*right_ptr > kPivot) {
-            --right_ptr;
-        }
-        if (left_ptr <= right_ptr) {
-            swap(*left_ptr, *right_ptr);
-            // чтобы не выйти за пределы диапазона
-            if (left_ptr != prev(end)) {
-                ++left_ptr;
-            }
-            if (right_ptr != begin) {
-                --right_ptr;
-            }
-        }
+template <typename T>
+istream& operator>>(istream& in, vector<T>& vec) {
+    size_t size = 0;
+    in >> size;
+    vec.resize(size + 1); // с учетом 0-й степени
+    for (T& element : vec) {
+        in >> element;
     }
-    return left_ptr;
+    return in;
 }
 
-template <typename Iterator>
-void QuickSort(Iterator begin, Iterator end) {
-    const size_t kSizeRange = distance(begin, end);
-    if (kSizeRange < 2) {
-        return;
+template <typename T>
+vector<T> PolynomialSum(const vector<T>& lhs, const vector<T>& rhs) {
+    assert(lhs.size() >= rhs.size());
+    vector<T> polynom_sum = lhs;
+    for (size_t i = lhs.size() - rhs.size(), j = 0; i < lhs.size(); ++i, ++j) {
+        polynom_sum[i] += rhs[j];
     }
-    Iterator bound = FindBound(begin, end, kSizeRange);
-    QuickSort(begin, bound); // [begin, bound)
-    QuickSort(bound, end); // [bound, begin)
+    return polynom_sum;
 }
+
+template <typename T>
+vector<T> operator+(const vector<T>& lhs, const vector<T>& rhs) {
+    return lhs.size() > rhs.size() ? PolynomialSum(lhs, rhs) : PolynomialSum(rhs, lhs);
+}
+
 
 namespace tests {
-    void TestQuickSort() {
+    void TestPolynomialSum() {
         {
-            vector<int> seq{2,1};
-            const vector<int> kExpectedSeq{1,2};
-            QuickSort(seq.begin(), seq.end());
-            assert(seq == kExpectedSeq);
+            vector<int> A{1,2,3,4};
+            vector<int> B{1,0,0};
+            vector<int> expected_sum{1,3,3,4};
+            assert(A + B == expected_sum);
         }{
-            vector<int> seq{3,1,2};
-            const vector<int> kExpectedSeq{1,2,3};
-            QuickSort(seq.begin(), seq.end());
-            assert(seq == kExpectedSeq);
+            vector<int> A{1};
+            vector<int> B{1,2,3,4,5,6,7,8,9,0};
+            vector<int> expected_sum{1,2,3,4,5,6,7,8,9,1};
+            assert(A + B == expected_sum);
         }{
-            vector<int> seq{3,9,7,8,10,27};
-            const vector<int> kExpectedSeq{3,7,8,9,10,27};
-            QuickSort(seq.begin(), seq.end());
-            assert(seq == kExpectedSeq);
+            vector<int> A{1,1};
+            vector<int> B = A;
+            vector<int> expected_sum{2,2};
+            assert(A + B == expected_sum);
         }{
-            vector<int> seq{2,12,5,48,0,4};
-            const vector<int> kExpectedSeq{0,2,4,5,12,48};
-            QuickSort(seq.begin(), seq.end());
-            assert(seq == kExpectedSeq);
+            vector<int> A{-100};
+            vector<int> B = A;
+            vector<int> expected_sum{-200};
+            assert(A + B == expected_sum);
         }{
-            vector<int> seq{13,17,37,73,31,19,23};
-            const vector<int> kExpectedSeq{13,17,19,23,31,37,73};
-            QuickSort(seq.begin(), seq.end());
-            assert(seq == kExpectedSeq);
+            vector<int> A{-100, 100};
+            vector<int> B{100, -150};
+            vector<int> expected_sum{0, -50};
+            assert(A + B == expected_sum);
         }{
-            vector<int> seq{18,20,3,17};
-            const vector<int> kExpectedSeq{3,17,18,20};
-            QuickSort(seq.begin(), seq.end());
-            assert(seq == kExpectedSeq);
+            vector<int> A;
+            vector<int> B;
+            assert((A + B).empty());
         }{
-            vector<int> seq{1,11,1};
-            const vector<int> kExpectedSeq{1,1,11};
-            QuickSort(seq.begin(), seq.end());
-            assert(seq == kExpectedSeq);
-        }{
-            vector<int> seq{5};
-            const vector<int> kExpectedSeq(seq);
-            QuickSort(seq.begin(), seq.end());
-            assert(seq == kExpectedSeq);
-        }{
-            vector<int> seq;
-            QuickSort(seq.begin(), seq.end());
-            assert(seq.empty());
-        }{
-            vector<int> seq{5,5,5,5,5,5,5,5,5};
-            const vector<int> kExpectedSeq(seq);
-            QuickSort(seq.begin(), seq.end());
-            assert(seq == kExpectedSeq);
+            vector<int> A;
+            vector<int> B{1,2,4,6,7,9};
+            assert(A + B == B);
         }
-        cerr << "TestQuickSort passed"s << endl;
+        cerr << "TestPolynomialSum passed"s << endl;
     }
 } // namespace tests
 
 
 int main() {
-    tests::TestQuickSort();
-    int size = 0;
-    cin >> size;
-    vector<int> seq(size);
-    for (int& element : seq) {
-        cin >> element;
-    }
-    QuickSort(seq.begin(), seq.end());
-    cout << seq << endl;
+    tests::TestPolynomialSum();
+    vector<int> A;
+    vector<int> B;
+    cin >> A >> B;
+    vector<int> C = A + B;
+    !C.size() ? cout << 0 : cout << C.size() - 1;
+    cout << endl;
+    cout << C << endl;
     return 0;
 }
