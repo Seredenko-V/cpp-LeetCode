@@ -1,77 +1,109 @@
 #include <iostream>
 #include <cassert>
-#include <string>
+#include <vector>
+#include <cstdint>
 
 using namespace std;
 
-// A+B строки.
-// https://new.contest.yandex.ru/42492/problem?id=6789665/2023_04_06/GWcZqPTpiJ
+// A+B матрицы.
+// https://new.contest.yandex.ru/42492/problem?id=6789665/2023_04_06/xWOwt1Aj4A
 
-// Вычислить "кривую" сумму двух строк A и B одинаковой длины.
-// "Кривой" суммой двух строк называется операция следующего вида:
-// C = A + B = A1B1A2B2...AnBn
+// Вычислить сумму двух матриц C = A + B.
 
+template <typename T>
+struct Matrix {
+    Matrix(int num_str, int num_col)
+        : str(num_str)
+        , col(num_col) {
+        if (!IsCorrect(str) || !IsCorrect(col)) {
+            return;
+        }
+        elements.resize(str, vector<T>(col));
+    }
 
-istream& ReadString(istream& in, string& str) {
-    for (char& symbol : str) {
-        in >> symbol;
+    bool IsCorrect(int value) {
+        return value >= 1 && value <= 10;
+    }
+
+    const uint16_t str = 0;
+    const uint16_t col = 0;
+    vector<vector<T>> elements;
+};
+
+template <typename T>
+istream& operator>>(istream& in, Matrix<T>& matrix) {
+    for (uint16_t i = 0; i < matrix.str; ++i) {
+        for (uint16_t j = 0; j < matrix.col; ++j) {
+            in >> matrix.elements[i][j];
+        }
     }
     return in;
 }
 
-string SumCurve(const string& lhs, const string& rhs) {
-    if (lhs.size() != rhs.size()) {
-        return {};
+template <typename T>
+ostream& operator<<(ostream& out, const Matrix<T>& matrix) {
+    for (uint16_t i = 0; i < matrix.str; ++i) {
+        for (uint16_t j = 0; j < matrix.col; ++j) {
+            out << matrix.elements[i][j] << ' ';
+        }
+        out << endl;
     }
-    string result_sum(lhs.size() * 2, '#');
-    // можно ввести дополнительную переменную внутри цикла, чтобы не умножать i
-    for (size_t i = 0; i < lhs.size(); ++i) {
-        result_sum[i * 2] = lhs[i];
-        result_sum[i * 2 + 1] = rhs[i];
-    }
-    return result_sum;
+    return out;
 }
 
+template <typename T>
+Matrix<T> operator+(const Matrix<T>& lhs, const Matrix<T>& rhs) {
+    Matrix<T> result(lhs.str, lhs.col);
+    for (size_t i = 0; i < result.str; ++i) {
+        for (size_t j = 0; j < result.col; ++j) {
+            result.elements[i][j] = lhs.elements[i][j] + rhs.elements[i][j];
+        }
+    }
+    return result;
+}
+
+template <typename T>
+bool operator==(const Matrix<T>& lhs, const Matrix<T>& rhs) {
+    if (lhs.str != rhs.str || lhs.col != rhs.col) {
+        return false;
+    }
+    return lhs.elements == rhs.elements;
+}
 
 namespace tests {
-    void TestSumCurve() {
+    void TestSumMatrix() {
         {
-            const string kLhs = "abc"s;
-            const string kRhs = "def"s;
-            const string kExpected = "adbecf"s;
-            assert(kExpected == SumCurve(kLhs, kRhs));
-        }{
-            const string kLhs = "abaca"s;
-            const string kRhs = "bdaef"s;
-            const string kExpected = "abbdaaceaf"s;
-            assert(kExpected == SumCurve(kLhs, kRhs));
-        }{
-            const string kLhs = "y"s;
-            const string kRhs = "z"s;
-            const string kExpected = "yz"s;
-            assert(kExpected == SumCurve(kLhs, kRhs));
-        }{ // разные размеры
-            const string kLhs = "yfasgfag"s;
-            const string kRhs = "z"s;
-            assert(SumCurve(kLhs, kRhs).empty());
-        }{ // пустые строки
-            const string kLhs;
-            const string kRhs;
-            assert(SumCurve(kLhs, kRhs).empty());
+            const int kStr = 2;
+            const int kCol = 3;
+            Matrix<int> A(kStr, kCol);
+            A.elements = {
+                {1,2,3},
+                {4,5,6}
+            };
+            Matrix<int> B(kStr, kCol);
+            B.elements = {
+                {-1,-2,-3},
+                {-4,-5,-6}
+            };
+            Matrix<int> kExpected(kStr, kCol);
+            kExpected.elements = {
+                {0,0,0},
+                {0,0,0}
+            };
+            assert(kExpected == A + B);
         }
-        cerr << "TestSumCurve passed"s << endl;
+        cerr << "TestSumMatrix passed"s << endl;
     }
 } // namespace tests
 
 
 int main() {
-    tests::TestSumCurve();
-    int size = 0;
-    cin >> size;
-    string A(size, '#');
-    string B(size, '#');
-    ReadString(cin, A);
-    ReadString(cin, B);
-    cout << SumCurve(A, B) << endl;
+    tests::TestSumMatrix();
+    int str = 0, col = 0;
+    cin >> str >> col;
+    Matrix<int> A(str, col);
+    Matrix<int> B(str, col);
+    cin >> A >> B;
+    cout << A + B << endl;
     return 0;
 }
