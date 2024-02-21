@@ -2,24 +2,16 @@
 #include <cassert>
 #include <vector>
 #include <cstdint>
-#include <algorithm>
-#include <ctime>
+#include <numeric>
+#include <cmath>
 
 using namespace std;
 
-// Максимальное произведение.
-// https://new.contest.yandex.ru/42734/problem?id=215/2022_11_08/wGEXsFgrcB
+// Максимальное произведение — контрпример.
+// https://new.contest.yandex.ru/42734/problem?id=215/2022_11_08/5Ai6zd8L0B
 
-// Вычислить максимальное произведение двух чисел из последовательности.
-// i != j, но допускается a_i == a_j
-
-template <typename T>
-istream& operator>>(istream& in, vector<T>& vec) {
-    for (T& element : vec) {
-        in >> element;
-    }
-    return in;
-}
+// Определите, можно ли построить такой пример входных данных, чтобы количество
+// сравнений в алгоритме MaxPairwiseProduct было больше 1.5n.
 
 template <typename T>
 ostream& operator<<(ostream& out, const vector<T>& vec) {
@@ -29,73 +21,97 @@ ostream& operator<<(ostream& out, const vector<T>& vec) {
     return out;
 }
 
-uint64_t MaxMult(vector<int>& seq) {
-    sort(seq.begin(), seq.end());
-    return static_cast<uint64_t>(seq[seq.size() - 1]) * static_cast<uint64_t>(seq[seq.size() - 2]);
+vector<int> CreateSequence(int size) {
+    vector<int> seq(size);
+    seq[0] = size - 1;
+    iota(next(seq.begin()), seq.end(), 0);
+    return seq;
 }
 
-uint64_t MaxPairwiseProduct(const std::vector<int>& numbers) {
-    uint64_t max_product = 0;
-    int n = numbers.size();
-    for (int first = 0; first < n; ++first) {
-        for (int second = first + 1; second < n; ++second) {
-            max_product = std::max(max_product, static_cast<uint64_t>(numbers[first]) * static_cast<uint64_t>(numbers[second]));
+size_t FindNumChecksInMaxPairwiseProduct(const vector<int>& numbers) {
+    assert(numbers.size() > 1);
+    int m1 = numbers[0];
+    int m2 = numbers[1];
+    if (m2 > m1) {
+        swap(m1, m2);
+    }
+    size_t count_checks = 1;
+    for (size_t i = 2; i < numbers.size(); ++i) {
+        ++count_checks;
+        if (numbers[i] > m1) {
+            m2 = m1;
+            m1 = numbers[i];
+        } else {
+            ++count_checks;
+            if (numbers[i] > m2) {
+                m2 = numbers[i];
+            }
         }
     }
-    return max_product;
+    return count_checks;
+}
+
+bool IsFoundSequence(int size, vector<int>& numbers) {
+    numbers = CreateSequence(size);
+    return FindNumChecksInMaxPairwiseProduct(numbers) > size * 1.5;
 }
 
 namespace tests {
-    void TestMaxMult() {
+    void TestCreateSequence() {
         {
-            vector<int> seq{1,2,3};
-            assert(MaxMult(seq) == 6u);
+            const vector<int> seq = CreateSequence(10);
+            const vector<int> expected{9,0,1,2,3,4,5,6,7,8};
+            assert(seq == expected);
         }{
-            vector<int> seq{2,0};
-            assert(MaxMult(seq) == 0);
+            const vector<int> seq = CreateSequence(2);
+            const vector<int> expected{1,0};
+            assert(seq == expected);
         }
-        cerr << "TestMaxMult passed"s << endl;
+        cerr << "TestCreateSequence passed"s << endl;
     }
 
-    void StressTest(int num_elems, int max_value) {
-        constexpr int kBeginRange = 2;
-        assert(num_elems >= kBeginRange);
-        while (true) {
-            int size = 0;
-            if (num_elems != kBeginRange) {
-                size = rand() % (num_elems - kBeginRange) + kBeginRange;
-            } else {
-                size = kBeginRange;
-            }
-
-            vector<int> seq(size);
-            for (int& elem : seq) {
-                if (max_value) {
-                    elem = rand() % max_value;
-                } else {
-                    elem = 0;
-                }
-            }
-            //cerr << seq << endl;
-            uint64_t resutl_1 = MaxPairwiseProduct(seq);
-            uint64_t resutl_2 = MaxMult(seq);
-            if (resutl_1 != resutl_2) {
-                cerr << "Wrong answer. "s << resutl_1 << "!="s << resutl_2 << endl;
-                break;
-            }
-            cerr << "OK"s << endl;
+    void TestFindNumChecksInMaxPairwiseProduct() {
+        {
+            const vector<int> seq{9,0,1,2,3,4,5,6,7,8};
+            assert(FindNumChecksInMaxPairwiseProduct(seq) == 17);
+        }{
+            const vector<int> seq{99,0};
+            assert(FindNumChecksInMaxPairwiseProduct(seq) == 1);
         }
+        cerr << "TestFindNumChecksInMaxPairwiseProduct passed"s << endl;
+    }
+
+    void TestIsFoundSequence() {
+        {
+            vector<int> seq;
+            assert(!IsFoundSequence(2, seq));
+        }{
+            vector<int> seq;
+            assert(IsFoundSequence(10, seq));
+            const vector<int> expected{9,0,1,2,3,4,5,6,7,8};
+            assert(seq == expected);
+        }
+        cerr << "TestIsFoundSequence passed"s << endl;
+    }
+
+    void RunAllTests() {
+        TestCreateSequence();
+        TestFindNumChecksInMaxPairwiseProduct();
+        TestIsFoundSequence();
+        cerr << ">>> All Tests passed<<< "s << endl;
     }
 } // namespace tests
 
 
 int main() {
-    tests::TestMaxMult();
-//    tests::StressTest(1000, 2e5);
+    tests::RunAllTests();
     int size = 0;
     cin >> size;
-    vector<int> seq(size);
-    cin >> seq;
-    cout << MaxMult(seq) << endl;
+    vector<int> seq;
+    if (IsFoundSequence(size, seq)) {
+        cout << "Yes" << endl << seq;
+    } else {
+        cout << "No";
+    }
     return 0;
 }
