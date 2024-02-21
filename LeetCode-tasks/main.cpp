@@ -2,108 +2,100 @@
 #include <cassert>
 #include <vector>
 #include <cstdint>
+#include <algorithm>
+#include <ctime>
 
 using namespace std;
 
-// A+B матрицы.
-// https://new.contest.yandex.ru/42492/problem?id=6789665/2023_04_06/xWOwt1Aj4A
+// Максимальное произведение.
+// https://new.contest.yandex.ru/42734/problem?id=215/2022_11_08/wGEXsFgrcB
 
-// Вычислить сумму двух матриц C = A + B.
-
-template <typename T>
-struct Matrix {
-    Matrix(int num_str, int num_col)
-        : str(num_str)
-        , col(num_col) {
-        if (!IsCorrect(str) || !IsCorrect(col)) {
-            return;
-        }
-        elements.resize(str, vector<T>(col));
-    }
-
-    bool IsCorrect(int value) {
-        return value >= 1 && value <= 10;
-    }
-
-    const uint16_t str = 0;
-    const uint16_t col = 0;
-    vector<vector<T>> elements;
-};
+// Вычислить максимальное произведение двух чисел из последовательности.
+// i != j, но допускается a_i == a_j
 
 template <typename T>
-istream& operator>>(istream& in, Matrix<T>& matrix) {
-    for (uint16_t i = 0; i < matrix.str; ++i) {
-        for (uint16_t j = 0; j < matrix.col; ++j) {
-            in >> matrix.elements[i][j];
-        }
+istream& operator>>(istream& in, vector<T>& vec) {
+    for (T& element : vec) {
+        in >> element;
     }
     return in;
 }
 
 template <typename T>
-ostream& operator<<(ostream& out, const Matrix<T>& matrix) {
-    for (uint16_t i = 0; i < matrix.str; ++i) {
-        for (uint16_t j = 0; j < matrix.col; ++j) {
-            out << matrix.elements[i][j] << ' ';
-        }
-        out << endl;
+ostream& operator<<(ostream& out, const vector<T>& vec) {
+    for (const T& element : vec) {
+        out << element << ' ';
     }
     return out;
 }
 
-template <typename T>
-Matrix<T> operator+(const Matrix<T>& lhs, const Matrix<T>& rhs) {
-    Matrix<T> result(lhs.str, lhs.col);
-    for (size_t i = 0; i < result.str; ++i) {
-        for (size_t j = 0; j < result.col; ++j) {
-            result.elements[i][j] = lhs.elements[i][j] + rhs.elements[i][j];
-        }
-    }
-    return result;
+uint64_t MaxMult(vector<int>& seq) {
+    sort(seq.begin(), seq.end());
+    return static_cast<uint64_t>(seq[seq.size() - 1]) * static_cast<uint64_t>(seq[seq.size() - 2]);
 }
 
-template <typename T>
-bool operator==(const Matrix<T>& lhs, const Matrix<T>& rhs) {
-    if (lhs.str != rhs.str || lhs.col != rhs.col) {
-        return false;
+uint64_t MaxPairwiseProduct(const std::vector<int>& numbers) {
+    uint64_t max_product = 0;
+    int n = numbers.size();
+    for (int first = 0; first < n; ++first) {
+        for (int second = first + 1; second < n; ++second) {
+            max_product = std::max(max_product, static_cast<uint64_t>(numbers[first]) * static_cast<uint64_t>(numbers[second]));
+        }
     }
-    return lhs.elements == rhs.elements;
+    return max_product;
 }
 
 namespace tests {
-    void TestSumMatrix() {
+    void TestMaxMult() {
         {
-            const int kStr = 2;
-            const int kCol = 3;
-            Matrix<int> A(kStr, kCol);
-            A.elements = {
-                {1,2,3},
-                {4,5,6}
-            };
-            Matrix<int> B(kStr, kCol);
-            B.elements = {
-                {-1,-2,-3},
-                {-4,-5,-6}
-            };
-            Matrix<int> kExpected(kStr, kCol);
-            kExpected.elements = {
-                {0,0,0},
-                {0,0,0}
-            };
-            assert(kExpected == A + B);
+            vector<int> seq{1,2,3};
+            assert(MaxMult(seq) == 6u);
+        }{
+            vector<int> seq{2,0};
+            assert(MaxMult(seq) == 0);
         }
-        cerr << "TestSumMatrix passed"s << endl;
+        cerr << "TestMaxMult passed"s << endl;
+    }
+
+    void StressTest(int num_elems, int max_value) {
+        constexpr int kBeginRange = 2;
+        assert(num_elems >= kBeginRange);
+        while (true) {
+            int size = 0;
+            if (num_elems != kBeginRange) {
+                size = rand() % (num_elems - kBeginRange) + kBeginRange;
+            } else {
+                size = kBeginRange;
+            }
+
+            vector<int> seq(size);
+            for (int& elem : seq) {
+                if (max_value) {
+                    elem = rand() % max_value;
+                } else {
+                    elem = 0;
+                }
+            }
+            //cerr << seq << endl;
+            uint64_t resutl_1 = MaxPairwiseProduct(seq);
+            uint64_t resutl_2 = MaxMult(seq);
+            if (resutl_1 != resutl_2) {
+                cerr << "Wrong answer. "s << resutl_1 << "!="s << resutl_2 << endl;
+                break;
+            }
+            cerr << "OK"s << endl;
+        }
     }
 } // namespace tests
 
 
 int main() {
-    tests::TestSumMatrix();
-    int str = 0, col = 0;
-    cin >> str >> col;
-    Matrix<int> A(str, col);
-    Matrix<int> B(str, col);
-    cin >> A >> B;
-    cout << A + B << endl;
+    tests::TestMaxMult();
+//    tests::StressTest(1000, 2e5);
+    int size = 0;
+    cin >> size;
+    vector<int> seq(size);
+    cin >> seq;
+    cout << MaxMult(seq) << endl;
     return 0;
 }
