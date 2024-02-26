@@ -12,6 +12,8 @@ using namespace std;
 // Определить максимальное произведение 3х чисел последовательности.
 // Индексы должны отличаться, но сами элементы могут быть равны.
 
+constexpr int COUNT_NUMBERS = 3;
+
 template <typename T>
 istream& operator>>(istream& in, vector<T>& vec) {
     for (T& element : vec) {
@@ -20,15 +22,19 @@ istream& operator>>(istream& in, vector<T>& vec) {
     return in;
 }
 
-int64_t MaxProductNums(vector<int64_t>& seq, int count_numbers = 3) {
-    if (static_cast<int>(seq.size()) < count_numbers || seq.empty() || count_numbers < 3) {
+int64_t MaxProductNums(vector<int64_t>& seq, int count_numbers = COUNT_NUMBERS) {
+    if (static_cast<int>(seq.size()) < count_numbers || seq.empty() || count_numbers < COUNT_NUMBERS) {
         return 0;
     }
     sort(seq.begin(), seq.end());
-    int64_t product = seq.back();
-    const int64_t left = seq[0] * seq[1];
-    const int64_t right = seq[seq.size() - 2] * seq[seq.size() - 3];
-    product *= left > right &&  product > 0 ? left : right;
+    const bool is_odd = count_numbers % 2;
+    int64_t product = is_odd ? seq.back() : 1;
+
+    for (int i = 0; i < count_numbers - is_odd; i += 2) {
+        const int64_t left = seq[i] * seq[i + 1];
+        const int64_t right = seq[seq.size() - i - 1 - is_odd] * seq[seq.size() - i - 2 - is_odd];
+        product *= left > right &&  product > 0 ? left : right;
+    }
     return product;
 }
 
