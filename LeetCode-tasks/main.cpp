@@ -1,26 +1,27 @@
 #include <iostream>
 #include <cassert>
+#include <cstdint>
 
 using namespace std;
 
-// Числа Фибоначчи.
-// https://new.contest.yandex.ru/42734/problem?id=6789665/2023_04_06/WwderYQo8t
+// Последняя цифра числа Фибоначчи.
+// https://new.contest.yandex.ru/47496/problem?id=215/2023_03_10/QRFPRBlJWb
 
-// Дано целое число n, необходимо вычислить n-е число Фибоначчи.
-// F0 = 0, F1 = 1, Fn = F(n-1) + F(n-2), n >= 2
+// Дано число n, необходимо найти последнюю цифру n-го числа Фибоначчи.
+// 0 <= n <= 1e6
 
-size_t GetFib(int n) {
+uint16_t GetLastDigitFib(int n) {
     if (n == 0) {
         return 0;
     }
     if (n == 1) {
         return 1;
     }
-    size_t F0 = 0;
-    size_t F1 = 1;
-    size_t Fn = 0;
+    uint16_t F0 = 0;
+    uint16_t F1 = 1;
+    uint16_t Fn = 0;
     for (int i = 2; i <= n; ++i) {
-        Fn = F0 + F1;
+        Fn = (F0 + F1) % 10;
         F0 = F1;
         F1 = Fn;
     }
@@ -28,21 +29,22 @@ size_t GetFib(int n) {
 }
 
 namespace tests {
-    void Test() {
-        assert(GetFib(0) == 0);
-        assert(GetFib(1) == 1u);
-        assert(GetFib(10) == 55u);
-        assert(GetFib(45) == 1'134'903'170u);
-        cerr << "Test passed"s << endl;
+    void TestGetLastDigitFib() {
+        assert(GetLastDigitFib(0) == 0);
+        assert(GetLastDigitFib(1) == 1u);
+        assert(GetLastDigitFib(3) == 2u);
+        assert(GetLastDigitFib(139) == 1u);
+        assert(GetLastDigitFib(91239) == 6u);
+        cerr << "TestGetLastDigitFib passed"s << endl;
     }
 
 } // namespace tests
 
 
 int main() {
-    tests::Test();
+    tests::TestGetLastDigitFib();
     int n = 0;
     cin >> n;
-    cout << GetFib(n) << endl;
+    cout << GetLastDigitFib(n) << endl;
     return 0;
 }
